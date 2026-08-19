@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECKO — Micro-Entrepreneur Performance Worker</title>
+    <meta name="description" content="AI Worker for partner performance classification and escalation">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #06080f;
+            --bg-secondary: #0d1117;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(99, 102, 241, 0.3);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-primary: #6366f1;
+            --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-glow: 0 0 60px rgba(99, 102, 241, 0.08);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(6, 8, 15, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 2rem;
+        }
+
+        .header-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text span {
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 6px;
+            font-size: 13px;
+        }
+
+        .header-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--success);
+        }
+
+        .header-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ===== MAIN ===== */
+        .main {
+            position: relative;
+            z-index: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1.2px;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ===== UPLOAD SECTION ===== */
+        .upload-section {
+            max-width: 640px;
+            margin: 2rem auto;
+        }
+
+        .drop-zone {
+            position: relative;
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--bg-card);
+            overflow: hidden;
+        }
+
+        .drop-zone::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-xl);
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--accent-primary);
+            background: var(--bg-card-hover);
+        }
+
+        .drop-zone:hover::before, .drop-zone.drag-over::before {
+            opacity: 0.03;
+        }
+
+        .drop-zone-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(99, 102, 241, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .drop-zone:hover .upload-icon {
+            transform: translateY(-4px);
+        }
+
+        .upload-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-primary);
+        }
+
+        .drop-zone h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .drop-zone p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .file-name {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1rem;
+            padding: 8px 16px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent-primary);
+        }
+
+        .file-name.visible {
+            display: inline-flex;
+        }
+
+        .file-name svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .process-btn {
+            display: block;
+            width: 100%;
+            margin-top: 1.2rem;
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--accent-gradient);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.2px;
+        }
+
+        .process-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .process-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .process-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .process-btn .btn-text { transition: opacity 0.2s; }
+        .process-btn.loading .btn-text { opacity: 0; }
+        .process-btn .btn-loader {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .process-btn.loading .btn-loader { opacity: 1; }
+
+        .btn-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Hidden file input */
+        #fileInput { display: none; }
+
+        /* ===== ERROR BANNER ===== */
+        .error-banner {
+            display: none;
+            max-width: 640px;
+            margin: 1rem auto 0;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            animation: slideDown 0.3s ease;
+        }
+
+        .error-banner.visible {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .error-banner svg {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            color: var(--error);
+            margin-top: 1px;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== RESULTS DASHBOARD ===== */
+        .dashboard {
+            display: none;
+            animation: fadeUp 0.5s ease;
+        }
+
+        .dashboard.visible {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 2rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.2rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .section-header .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--success);
+        }
+
+        .badge-error {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--error);
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.4rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            border-radius: 2px 2px 0 0;
+        }
+
+        .stat-card:nth-child(1)::before { background: var(--accent-primary); }
+        .stat-card:nth-child(2)::before { background: var(--success); }
+        .stat-card:nth-child(3)::before { background: var(--warning); }
+        .stat-card:nth-child(4)::before { background: var(--info); }
+
+        .stat-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.6rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .stat-sub {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-top: 0.4rem;
+        }
+
+        /* ===== CHARTS GRID ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 260px;
+            margin: 0 auto;
+        }
+
+        /* Classification legend */
+        .classification-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: background 0.2s;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .legend-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        .legend-label {
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .legend-count {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ===== VERIFICATION SECTION ===== */
+        .checks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .checks-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .checks-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .checks-list::-webkit-scrollbar-thumb {
+            background: var(--border-subtle);
+            border-radius: 4px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            transition: background 0.2s;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .check-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .check-icon {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        .check-icon.pass {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .check-icon.fail {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .check-icon svg {
+            width: 11px;
+            height: 11px;
+        }
+
+        .check-text {
+            color: var(--text-secondary);
+        }
+
+        .check-text strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ===== ESCALATION TABLE ===== */
+        .escalation-section {
+            margin-bottom: 2rem;
+        }
+
+        .table-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .data-table .partner-id {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+        }
+
+        .classification-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-escalate {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+        }
+
+        .badge-active {
+            background: rgba(34, 197, 94, 0.12);
+            color: #86efac;
+        }
+
+        .badge-inactive {
+            background: rgba(107, 114, 128, 0.15);
+            color: #9ca3af;
+        }
+
+        .badge-improving {
+            background: rgba(59, 130, 246, 0.12);
+            color: #93c5fd;
+        }
+
+        .badge-declining {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fcd34d;
+        }
+
+        .badge-risky {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+        }
+
+        .badge-high-potential {
+            background: rgba(139, 92, 246, 0.12);
+            color: #c4b5fd;
+        }
+
+        .badge-new {
+            background: rgba(6, 182, 212, 0.12);
+            color: #67e8f9;
+        }
+
+        .reason-text {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            max-width: 400px;
+        }
+
+        /* ===== DOWNLOAD SECTION ===== */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .download-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .download-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            transform: translateY(-1px);
+        }
+
+        .download-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .download-icon.csv { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .download-icon.md { background: rgba(99, 102, 241, 0.1); color: var(--accent-primary); }
+        .download-icon.log { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+
+        .download-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .download-info {
+            flex: 1;
+        }
+
+        .download-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .download-desc {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 2rem 0 3rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .main { padding: 1rem; }
+            .download-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .header-inner { padding: 0; }
+        }
+
+        /* ===== PROCESSING OVERLAY ===== */
+        .processing-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 8, 15, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .processing-overlay.visible {
+            display: flex;
+        }
+
+        .processing-modal {
+            text-align: center;
+            animation: fadeUp 0.4s ease;
+        }
+
+        .processing-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(99, 102, 241, 0.15);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        .processing-modal h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .processing-modal p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== STEP INDICATOR ===== */
+        .steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .step.active {
+            color: var(--accent-primary);
+        }
+
+        .step.done {
+            color: var(--success);
+        }
+
+        .step-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .step.active .step-dot {
+            background: var(--accent-primary);
+            animation: pulse-dot 1s ease-in-out infinite;
+        }
+
+        .step.done .step-dot {
+            background: var(--success);
+        }
+
+        .step-line {
+            width: 24px;
+            height: 1px;
+            background: var(--border-subtle);
+        }
+
+        /* ===== SUCCESS HEADER ===== */
+        .success-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 1rem 1.5rem;
+            background: rgba(34, 197, 94, 0.06);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+        }
+
+        .success-header svg {
+            width: 22px;
+            height: 22px;
+            color: var(--success);
+        }
+
+        .success-header .text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .success-header .sub {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        /* ===== TIMESTAMP ===== */
+        .timestamp {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">EK</div>
+                <div class="logo-text">ECKO <span>Performance Worker</span></div>
+            </div>
+            <div class="header-badge">
+                <div class="dot"></div>
+                API Online
+            </div>
+        </div>
+    </header>
+
+    <!-- PROCESSING OVERLAY -->
+    <div class="processing-overlay" id="processingOverlay">
+        <div class="processing-modal">
+            <div class="processing-spinner"></div>
+            <h3>Processing your data...</h3>
+            <p>Validating, classifying, and verifying partners</p>
+            <div class="steps">
+                <div class="step done" id="step1"><div class="step-dot"></div> Upload</div>
+                <div class="step-line"></div>
+                <div class="step active" id="step2"><div class="step-dot"></div> Validate</div>
+                <div class="step-line"></div>
+                <div class="step" id="step3"><div class="step-dot"></div> Classify</div>
+                <div class="step-line"></div>
+                <div class="step" id="step4"><div class="step-dot"></div> Verify</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- HERO -->
+        <section class="hero" id="heroSection">
+            <h1>Micro-Entrepreneur<br>Performance Worker</h1>
+            <p>Upload partner activity data to automatically classify performance, detect anomalies, and generate actionable review reports.</p>
+        </section>
+
+        <!-- UPLOAD -->
+        <section class="upload-section" id="uploadSection">
+            <input type="file" id="fileInput" accept=".csv">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-content">
+                    <div class="upload-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <h3>Drop your CSV file here</h3>
+                    <p>or click to browse · Supports .csv files</p>
+                    <div class="file-name" id="fileName">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <span id="fileNameText"></span>
+                    </div>
+                </div>
+            </div>
+            <button class="process-btn" id="processBtn" disabled>
+                <span class="btn-text">Process CSV File</span>
+                <span class="btn-loader">
+                    <span class="btn-spinner"></span>
+                    Processing...
+                </span>
+            </button>
+        </section>
+
+        <!-- ERROR -->
+        <div class="error-banner" id="errorBanner">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- DASHBOARD (hidden initially) -->
+        <div class="dashboard" id="dashboard">
+
+            <div class="dashboard-divider"></div>
+
+            <div class="success-header" id="successHeader">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <span class="text">Processing Complete</span>
+                <span class="sub" id="successSub"></span>
+            </div>
+
+            <div class="timestamp" id="runTimestamp"></div>
+
+            <!-- STATS -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Partners</div>
+                    <div class="stat-value" id="statTotal">—</div>
+                    <div class="stat-sub">processed in this run</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Auto-Classified</div>
+                    <div class="stat-value" id="statClassified">—</div>
+                    <div class="stat-sub">ready for review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Escalated</div>
+                    <div class="stat-value" id="statEscalated">—</div>
+                    <div class="stat-sub" id="statEscPct">needs human review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Verification</div>
+                    <div class="stat-value" id="statVerification">—</div>
+                    <div class="stat-sub" id="statVerSub">checks passed</div>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW -->
+            <div class="charts-grid">
+                <!-- Classification Breakdown -->
+                <div class="card">
+                    <div class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                        </svg>
+                        Classification Breakdown
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="classChart"></canvas>
+                    </div>
+                    <div class="classification-legend" id="classLegend"></div>
+                </div>
+
+                <!-- Verification Checks -->
+                <div class="card">
+                    <div class="card-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                        Verification Checks
+                        <span class="badge" id="verBadge"></span>
+                    </div>
+                    <div class="checks-list" id="checksList"></div>
+                </div>
+            </div>
+
+            <!-- ESCALATION TABLE -->
+            <section class="escalation-section" id="escalationSection">
+                <div class="section-header">
+                    <h2>⚠️ Human Review Queue</h2>
+                    <span class="badge badge-error" id="escCount"></span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Partner ID</th>
+                                <th>Name</th>
+                                <th>Classification</th>
+                                <th>Reason for Escalation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="escTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- DOWNLOADS -->
+            <section>
+                <div class="section-header">
+                    <h2>📁 Download Reports</h2>
+                </div>
+                <div class="download-grid" id="downloadGrid"></div>
+            </section>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            Built for <strong>Eko</strong> · Micro-Entrepreneur Performance Worker v1.0
+        </div>
+
+    </main>
+
+    <script>
+        // ===== DOM Elements =====
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const fileNameText = document.getElementById('fileNameText');
+        const processBtn = document.getElementById('processBtn');
+        const errorBanner = document.getElementById('errorBanner');
+        const errorText = document.getElementById('errorText');
+        const dashboard = document.getElementById('dashboard');
+        const processingOverlay = document.getElementById('processingOverlay');
+
+        let selectedFile = null;
+
+        // ===== File Selection =====
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFile(fileInput.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.name.endsWith('.csv')) {
+                showError('Please select a CSV file');
+                return;
+            }
+            selectedFile = file;
+            fileNameText.textContent = file.name;
+            fileName.classList.add('visible');
+            processBtn.disabled = false;
+            hideError();
+        }
+
+        // ===== Processing =====
+        processBtn.addEventListener('click', uploadFile);
+
+        async function uploadFile() {
+            if (!selectedFile) return;
+
+            processBtn.disabled = true;
+            processBtn.classList.add('loading');
+            hideError();
+            dashboard.classList.remove('visible');
+
+            // Show overlay
+            processingOverlay.classList.add('visible');
+            animateSteps();
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                processingOverlay.classList.remove('visible');
+                processBtn.classList.remove('loading');
+                processBtn.disabled = false;
+
+                if (response.ok && data.success) {
+                    renderDashboard(data);
+                } else {
+                    const errMsg = data.detail || data.message || 'Unknown error';
+                    showError(errMsg);
+                }
+            } catch (error) {
+                processingOverlay.classList.remove('visible');
+                processBtn.classList.remove('loading');
+                processBtn.disabled = false;
+                showError('Connection failed: ' + error.message);
+            }
+        }
+
+        function animateSteps() {
+            const steps = ['step1', 'step2', 'step3', 'step4'];
+            let current = 1;
+
+            const interval = setInterval(() => {
+                if (current < steps.length) {
+                    document.getElementById(steps[current - 1]).className = 'step done';
+                    document.getElementById(steps[current]).className = 'step active';
+                    current++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 800);
+        }
+
+        // ===== Error Display =====
+        function showError(msg) {
+            errorText.textContent = msg;
+            errorBanner.classList.add('visible');
+        }
+
+        function hideError() {
+            errorBanner.classList.remove('visible');
+        }
+
+        // ===== Render Dashboard =====
+        function renderDashboard(data) {
+            const { summary, verification, output_files, run_id, timestamp } = data;
+
+            // Scroll to upload section top
+            document.getElementById('heroSection').style.display = 'none';
+            document.getElementById('uploadSection').style.display = 'none';
+
+            // Timestamp
+            document.getElementById('runTimestamp').textContent = 
+                `Run ID: ${run_id.slice(0, 8)}… · ${new Date(timestamp).toLocaleString()}`;
+
+            // Success header
+            const verStatus = verification?.passed ? 'All checks passed' : 'Some checks failed';
+            document.getElementById('successSub').textContent = `· ${verStatus}`;
+
+            // Stats
+            const total = summary.total_partners;
+            const escalated = summary.escalated_count;
+            const classified = total - escalated;
+
+            animateCounter('statTotal', total);
+            animateCounter('statClassified', classified);
+            animateCounter('statEscalated', escalated);
+            document.getElementById('statEscPct').textContent = 
+                `${Math.round(escalated / total * 100)}% of total`;
+
+            if (verification) {
+                document.getElementById('statVerification').textContent = 
+                    `${verification.passed_checks}/${verification.total_checks}`;
+                document.getElementById('statVerSub').textContent = 
+                    verification.passed ? 'all checks passed ✓' : 'some checks failed ✗';
+            }
+
+            // Classification chart
+            renderClassChart(summary.classification_breakdown);
+
+            // Verification checks
+            if (verification?.details) {
+                renderChecks(verification);
+            }
+
+            // Escalation table
+            renderEscalationTable(summary);
+
+            // Downloads
+            renderDownloads(output_files);
+
+            // Show dashboard
+            dashboard.classList.add('visible');
+            dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ===== Animated Counter =====
+        function animateCounter(id, target) {
+            const el = document.getElementById(id);
+            let current = 0;
+            const duration = 600;
+            const step = Math.max(1, Math.floor(target / (duration / 16)));
+            
+            const interval = setInterval(() => {
+                current = Math.min(current + step, target);
+                el.textContent = current;
+                if (current >= target) clearInterval(interval);
+            }, 16);
+        }
+
+        // ===== Classification Chart =====
+        const CLASS_COLORS = {
+            'Active': '#22c55e',
+            'Inactive': '#6b7280',
+            'Improving': '#3b82f6',
+            'Declining': '#f59e0b',
+            'Risky': '#ef4444',
+            'High-Potential': '#8b5cf6',
+            'ESCALATE_DATA_ISSUE': '#f43f5e',
+            'Active (New, insufficient history)': '#06b6d4',
+        };
+
+        function renderClassChart(breakdown) {
+            const labels = Object.keys(breakdown);
+            const values = Object.values(breakdown);
+            const colors = labels.map(l => CLASS_COLORS[l] || '#64748b');
+
+            const ctx = document.getElementById('classChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: 'transparent',
+                        borderWidth: 0,
+                        hoverOffset: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#94a3b8',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            padding: 10,
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000,
+                    }
+                }
+            });
+
+            // Legend
+            const legendEl = document.getElementById('classLegend');
+            legendEl.innerHTML = labels.map((label, i) => `
+                <div class="legend-item">
+                    <div class="legend-left">
+                        <div class="legend-dot" style="background: ${colors[i]}"></div>
+                        <span class="legend-label">${formatLabel(label)}</span>
+                    </div>
+                    <span class="legend-count">${values[i]}</span>
+                </div>
+            `).join('');
+        }
+
+        function formatLabel(label) {
+            if (label === 'ESCALATE_DATA_ISSUE') return 'Escalated (Data Issue)';
+            if (label === 'Active (New, insufficient history)') return 'New Partner';
+            return label;
+        }
+
+        // ===== Verification Checks =====
+        function renderChecks(verification) {
+            const badge = document.getElementById('verBadge');
+            badge.textContent = `${verification.passed_checks}/${verification.total_checks}`;
+            badge.className = `badge ${verification.passed ? 'badge-success' : 'badge-error'}`;
+
+            const list = document.getElementById('checksList');
+            list.innerHTML = verification.details.map(check => `
+                <div class="check-item">
+                    <div class="check-icon ${check.passed ? 'pass' : 'fail'}">
+                        ${check.passed 
+                            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+                            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+                        }
+                    </div>
+                    <span class="check-text">${check.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // ===== Escalation Table =====
+        function renderEscalationTable(summary) {
+            const escSection = document.getElementById('escalationSection');
+            
+            if (summary.escalated_count === 0) {
+                escSection.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('escCount').textContent = 
+                `${summary.escalated_count} partner${summary.escalated_count > 1 ? 's' : ''}`;
+
+            // We'll use the escalated_partners from the summary if available
+            const tbody = document.getElementById('escTableBody');
+            
+            if (summary.escalated_partners && summary.escalated_partners.length > 0) {
+                tbody.innerHTML = summary.escalated_partners.map(p => `
+                    <tr>
+                        <td class="partner-id">${p.partner_id}</td>
+                        <td>${p.partner_name || '—'}</td>
+                        <td><span class="classification-badge ${getBadgeClass(p.classification)}">${formatLabel(p.classification)}</span></td>
+                        <td class="reason-text">${p.reasoning || '—'}</td>
+                    </tr>
+                `).join('');
+            } else {
+                // Fallback: show count only
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding: 2rem; color: var(--text-muted);">
+                            ${summary.escalated_count} partners escalated — download the Human Review Queue for details.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function getBadgeClass(cls) {
+            const map = {
+                'Active': 'badge-active',
+                'Inactive': 'badge-inactive',
+                'Improving': 'badge-improving',
+                'Declining': 'badge-declining',
+                'Risky': 'badge-risky',
+                'High-Potential': 'badge-high-potential',
+                'ESCALATE_DATA_ISSUE': 'badge-escalate',
+                'Active (New, insufficient history)': 'badge-new',
+            };
+            return map[cls] || 'badge-escalate';
+        }
+
+        // ===== Downloads =====
+        const FILE_META = {
+            classification: { title: 'Classification Output', desc: 'All partners with labels', icon: 'csv' },
+            review_queue: { title: 'Human Review Queue', desc: 'Escalated partners', icon: 'csv' },
+            summary_report: { title: 'Summary Report', desc: 'Manager-facing rollup', icon: 'md' },
+            validation_report: { title: 'Validation Report', desc: 'Data quality issues', icon: 'md' },
+            audit_log: { title: 'Audit Log', desc: 'Decision trail', icon: 'log' },
+        };
+
+        const FILE_ICONS = {
+            csv: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+            md: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+            log: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>`,
+        };
+
+        function renderDownloads(files) {
+            const grid = document.getElementById('downloadGrid');
+            grid.innerHTML = Object.entries(files).map(([key, url]) => {
+                const meta = FILE_META[key] || { title: key, desc: '', icon: 'csv' };
+                return `
+                    <a href="${url}" class="download-card" download>
+                        <div class="download-icon ${meta.icon}">
+                            ${FILE_ICONS[meta.icon]}
+                        </div>
+                        <div class="download-info">
+                            <div class="download-title">${meta.title}</div>
+                            <div class="download-desc">${meta.desc}</div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
