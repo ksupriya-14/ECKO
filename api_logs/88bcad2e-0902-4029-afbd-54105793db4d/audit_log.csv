@@ -1,0 +1,38 @@
+timestamp,partner_id,stage,decision,reason,severity
+2026-08-20T15:30:12.331576+00:00,FILE,ingest,load,Loaded 28 rows from uploads\88bcad2e-0902-4029-afbd-54105793db4d.csv,info
+2026-08-20T15:30:12.482858+00:00,MULTIPLE,validation,drop_exact_duplicates,Dropped 1 exact duplicate row(s),warning
+2026-08-20T15:30:12.527561+00:00,1021,validation,flag_missing_field,'txn_count_last_30' is missing,error
+2026-08-20T15:30:12.527561+00:00,1021,validation,flag_missing_field,'txn_volume_gtv_last_30' is missing,error
+2026-08-20T15:30:12.527561+00:00,1021,validation,flag_missing_field,'active_days_last_30' is missing,error
+2026-08-20T15:30:12.532904+00:00,1022,validation,flag_broken_total,declared=500000.0 computed=210000.0 diff=58.0%,error
+2026-08-20T15:30:12.534933+00:00,1023,validation,flag_negative_value,'txn_volume_gtv_last_30'=-50000.0,error
+2026-08-20T15:30:12.534933+00:00,1024,validation,flag_compliance_risk,kyc_status=Rejected,error
+2026-08-20T15:30:12.534933+00:00,1027,validation,flag_out_of_range,service_uptime_pct=143.0,error
+2026-08-20T15:30:12.545443+00:00,1001,classification,classify,GTV grew 24% month-over-month.,info
+2026-08-20T15:30:12.547470+00:00,1002,classification,classify,GTV change of 12% is within normal stable range.,info
+2026-08-20T15:30:12.547470+00:00,1003,classification,classify,GTV change of -3% is within normal stable range.,info
+2026-08-20T15:30:12.547470+00:00,1004,classification,classify,GTV declined -31% month-over-month.,info
+2026-08-20T15:30:12.547470+00:00,1005,classification,classify,Inactive: zero activity in last 30 days,info
+2026-08-20T15:30:12.556611+00:00,1006,classification,classify,"GTV grew 80% month-over-month with strong activity (500.0 txns, 27.0 active days).",info
+2026-08-20T15:30:12.558630+00:00,1007,classification,classify,GTV change of -5% is within normal stable range.,info
+2026-08-20T15:30:12.558951+00:00,1008,classification,classify,GTV change of 17% is within normal stable range.,info
+2026-08-20T15:30:12.558951+00:00,1009,classification,classify,"Risky: complaints=3, uptime=88.0",info
+2026-08-20T15:30:12.559968+00:00,1010,classification,classify,GTV change of 10% is within normal stable range.,info
+2026-08-20T15:30:12.559968+00:00,1011,classification,classify,GTV grew 24% month-over-month.,info
+2026-08-20T15:30:12.559968+00:00,1012,classification,classify,GTV change of 12% is within normal stable range.,info
+2026-08-20T15:30:12.559968+00:00,1013,classification,classify,GTV change of -3% is within normal stable range.,info
+2026-08-20T15:30:12.559968+00:00,1014,classification,classify,GTV declined -31% month-over-month.,info
+2026-08-20T15:30:12.559968+00:00,1015,classification,classify,Inactive: zero activity in last 30 days,info
+2026-08-20T15:30:12.559968+00:00,1016,classification,classify,"GTV grew 80% month-over-month with strong activity (500.0 txns, 27.0 active days).",info
+2026-08-20T15:30:12.559968+00:00,1017,classification,classify,GTV change of -5% is within normal stable range.,info
+2026-08-20T15:30:12.560999+00:00,1018,classification,classify,GTV change of 17% is within normal stable range.,info
+2026-08-20T15:30:12.560999+00:00,1019,classification,classify,"Risky: complaints=3, uptime=88.0",info
+2026-08-20T15:30:12.560999+00:00,1020,classification,classify,GTV change of 10% is within normal stable range.,info
+2026-08-20T15:30:12.560999+00:00,1021,classification,escalate,Blocking data issue(s) prevent classification: missing_field: 'txn_count_last_30' is missing; missing_field: 'txn_volume_gtv_last_30' is missing; missing_field: 'active_days_last_30' is missing,error
+2026-08-20T15:30:12.560999+00:00,1022,classification,escalate,"Blocking data issue(s) prevent classification: broken_total: declared_gtv (500000.0) vs computed_gtv (210000.0) differ by 58.0%, exceeds 2% tolerance",error
+2026-08-20T15:30:12.560999+00:00,1023,classification,escalate,Blocking data issue(s) prevent classification: invalid_value: 'txn_volume_gtv_last_30' is negative (-50000.0),error
+2026-08-20T15:30:12.560999+00:00,1024,classification,escalate,Blocking data issue(s) prevent classification: compliance_risk: KYC status is 'Rejected' but partner has 350.0 transactions in the last 30 days,error
+2026-08-20T15:30:12.561963+00:00,1025,classification,classify,GTV change of 9% is within normal stable range.,info
+2026-08-20T15:30:12.561963+00:00,1027,classification,escalate,Blocking data issue(s) prevent classification: invalid_value: service_uptime_pct out of range (143.0),error
+2026-08-20T15:30:12.561963+00:00,1028,classification,classify,"New partner, no prior-period baseline for growth comparison",info
+2026-08-20T15:30:12.611318+00:00,1028,escalation,escalate_low_confidence,Confidence below 0.55 threshold,warning
